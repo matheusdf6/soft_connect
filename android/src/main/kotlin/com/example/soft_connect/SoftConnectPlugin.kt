@@ -1,35 +1,35 @@
 package com.example.soft_connect
 
-import androidx.annotation.NonNull
+import android.content.Context
+import android.net.ConnectivityManager
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 /** SoftConnectPlugin */
-class SoftConnectPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+class SoftConnectPlugin: FlutterPlugin {
+  private lateinit var methodChannel : MethodChannel
+  private lateinit var eventChannel : EventChannel
+  private lateinit var methodHandler: SoftConnectMethodHandler
+  private lateinit var eventHandler: SoftConnectEventHandler
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "soft_connect")
-    channel.setMethodCallHandler(this)
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
-    }
+    val context = flutterPluginBinding.applicationContext
+    val systemConnectivityManager = context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+    val connectionManager = ConnectionManager(systemConnectivityManager)
+    methodHandler = SoftConnectMethodHandler(connectionManager)
+    methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, "soft_connect")
+    methodChannel.setMethodCallHandler(methodHandler)
+    eventHandler = SoftConnectEventHandler(connectionManager)
+    eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "soft_connect/onConnectionStatusChanged")
+    eventChannel.setStreamHandler(eventHandler)
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
+    methodChannel.setMethodCallHandler(null)
+    eventChannel.setStreamHandler(null)
   }
 }

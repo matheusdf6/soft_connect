@@ -24,6 +24,13 @@ allprojects {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+//def localDependeciesFile = file('build.local.gradle')
+//if ( localDependeciesFile.exists() ) {
+//    apply from: localDependeciesFile
+//} else {
+//    println 'Local dependencies file not found. Skipping...'
+//}
+
 android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.example.soft_connect'
@@ -46,7 +53,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 24
     }
 
     dependencies {

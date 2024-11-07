@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+*.hprof
 
 # IntelliJ related
 *.iml
@@ -30,3 +31,6 @@ build/
 
 # FVM Version Cache
 .fvm/
+
+# Android related
+build.local.gradle
